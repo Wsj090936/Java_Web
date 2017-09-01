@@ -1,6 +1,9 @@
 package WebServlet;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -52,10 +55,37 @@ public class UpLoadServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 	}
-
+	/**
+	 * 文件上传表单项
+	 * @param fileItem
+	 */
 	private void processUploadField(FileItem fileItem) {
-		// TODO Auto-generated method stub
-		
+		//得到文件名
+		String filename = fileItem.getName();
+		try {
+			InputStream is = fileItem.getInputStream();
+			//创建一个存储文件的目录
+			String storePath = this.getServletContext().getRealPath("/images");
+			File storePlace = new File(storePath);
+			if(!storePlace.exists()){//如果该目录不存在就创建一个
+				storePlace.mkdirs();
+			}
+			//创建一个文件用来存上传的内容
+			File file = new File(storePlace,filename);
+			//将文件通过输出流保存到磁盘
+			FileOutputStream fos = new FileOutputStream(file);
+			
+			int len = 0;
+			byte[] b = new byte[1024];
+			while((len=is.read(b)) != -1){
+				fos.write(b, 0, len);
+			}
+			fos.close();
+			is.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	/**
 	 * 普通表单项
@@ -66,7 +96,6 @@ public class UpLoadServlet extends HttpServlet {
 		String fieldvalue = fileItem.getString();//字段值
 		System.out.println(fieldname+"="+fieldvalue);//des=xxx
 	}
-
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		doGet(req, resp);
